@@ -1,7 +1,7 @@
 Notes4AdvancedR
 ===============
 
-Here are the notes I've made while reading Advanced R Programming by Hadley Wickham
+Here are the notes I've made while reading Advanced R Programming by Hadley Wickham. I will keep updating this repository as I read more chapters.
 
 Notes on [Advanced R](http://adv-r.had.co.nz/)
 ----------------------

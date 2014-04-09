@@ -1,8 +1,3 @@
-Notes4AdvancedR
-===============
-
-Here are the notes I've made while reading Advanced R Programming by Hadley Wickham. I will keep updating this repository as I read more chapters.
-
 Notes on [Advanced R](http://adv-r.had.co.nz/)
 ----------------------
 by Bing He
@@ -50,6 +45,7 @@ by Bing He
 11. Set operations in R: `intersect(x,y); union(x,y); setdiff(x,y)` and `setdiff(union(x,y),intersect(x,y))` for XOR.
 
 ### [Vocabulary](http://adv-r.had.co.nz/Vocabulary.html)
+#### Basics
 1. `<<-`: if var name is not found in local environment, search parent environment until global environment.
 2. `match(x,table)` returns the positions of (first) matches of `x`'s elements in `table`
 3. `subset(x,subset,select)` subset matrices/data frames that meet conditions. `x` the matrices/data frame to be subsetted. `subset` logical expression to select elements (1-dim) or rows (higher dim); `select` logical expression to select columns.
@@ -79,4 +75,91 @@ by Bing He
 23. `setequal(x,y)`
 24. `sweep(array, margin, stats, fun)` sweep a summary stats as fun defined to the margin of the array.
 25. `data.matrix` converts all columns in a data frame into numeric mode and save as a matrix.
-26. 
+26. `rep,rep.int,rep_len`: `rep.int(x,times)` replicate vector `x` `times` times. `rep_len(x,length.out)` replicate vector `x` until its length reaches `length.out`.
+27. `seq,seq_along,seq_len,seq.int`: `seq_along(x)` and `seq_len(length.out)` generates integers starting from 1 to the `length(x)` or `length.out`.
+28. `rev(x)` returns a reversed version of its argument
+29. `sample(x,size,replace,prob)`: `x` vector to be sampled from; `size` numbers of elements to be sampled.
+30. `choose(n,k)` returns binomial coefficients.
+31. `unlist` returns a vector contains all atomic components in the list
+32. `split(x, f, drop = FALSE, ...)`: split `x` according to factor `f`, `drop=T` to drop levels in `f` that does not occur.
+33. `expand.grid` create a data frame that have all the combinations of provided vector/factor. For example, `expand.grid(height = seq(60, 80, 5), weight = seq(100, 300, 50), sex = c("Male","Female"))`.
+34. `next/break`
+35. `switch(EXPR, alternatives)` if `EXPR` is character/string, alternatives are named and matched by names; if `EXPR` is integer, alternatives can be without names and are matched by order of occurence. `switch` can be used within function.
+36. `ISOdate, ISOdatetime, strptime("Tue, 23 Mar 2010 14:36:38 -0400",  "%a, %d %b %Y %H:%M:%S %z")` convert string to date or backwards. `difftime` creates time intervals,`julian,months,quarters,weekdays` extracts julian time, month, quarter, and weekday of a date. __Julian time is number of days since origin__.
+
+#### String
+37. `agrep(pattern,x)` approximate string match which finds matches of `x`'s element to `pattern` using edit distance.
+38. String match:
+    * `grep(x,pattern,value=FALSE)` returns the incides of the elements of `x` to `pattern`; 
+    * `grep(x,pattern,value=TRUE)` returns the character vectors containing the matched elements.
+    * `grepl` returns a logical vector
+39. `sub/gsub(x,pattern,replacement)` substitute matches in `x` to `pattern` with `replacement`. `gsub()` is global substitution (all matches); `sub` is first match. 
+    * use `perl=TRUE` to enable perl-style regular expression.
+40. `strsplit(x,split,perl)` split each element in `x` by `split`. The return value is `list`, you can use `unlist()` to transform the returned value to a vector.
+41. `chartr(old,new,x)` translate each character in `x` from `old` to `new`. For example, `chartr("iXs", "why", x)`.
+42. `nchar` num of characters
+43. `library(stringr)`
+
+#### Statistics
+44. For `factor`, `levels,nlevels,reorder,relevel`; `cut(x,breaks)` cuts `x` according to `breaks` and return a factor.
+42. `findInterval(x,vec)`: `vec` is vector of increasing numbers, representing intervals; `i <- findInterval(x,vec)`: `v[i[j]] <= x[j] < v[i[j+1]]`
+43. `aperm(a,perm)` transpose an array by permuting its dimensions.
+44. `duplicated(x)` returns a logical vector with the same length of `x`: `TRUE`indicates this element is the same as some element with smaller subscript. `x[!duplicated(x)]` extracts the unique values.
+45. `ftable()` flat contigency table
+46. `merge(x,y,by=)` merge `x` and `y` by common columns or rownames
+47. `fitted, predict, resid, rstandard, influence.measures, rstudent(),hat, deviance`
+48. `logLik(object, REML=FALSE)` extract log likelihood from a fitted model, for example, you can extract log-likelihood from `glm()`
+49. `I()` treat as "as is"
+50. `anova,coef,confint,vcov`; `contrasts` sets the constrasts associated with a factor.
+52. `crossprod, tcrossprod`: ` t(x) %*% y (crossprod)` or `x %*% t(y) (tcrossprod)`
+53. `%o%` outer product for matrices/arrays. 
+54. `outer(month.abb, 1999:2003, FUN = "paste")`.
+55. `rcond` returns conditional number of a matrix
+
+#### Help
+51. `apropos(what)` find objects by partial match of names. For example, `apropos("../test")` returns test functions in R.
+56. `exists` look for an R object with given name
+57. `require` is the same as `library`, but `require` is designed for use within function. For non-existing packages, `require` throws a warning, while `library` throws an error.
+58. `RSiteSearch,citation,demo,example` and `vignette("grid")`
+59. `help.search("linear models")`
+
+#### Debugging and error handling
+60. `options(error = recover)` when error occurs, automatically list the current active function calls. By selecting a function call, this allows user to browse directly on the function call; can also be called with `recover()`. After choosing an active function call, then it behaves just like `browser()`.
+61. `geterrmessage()` gives the last error.
+62. `warning("test it")` generates a warning that corresponds to its argument
+63. `stop("error here!\n")` stop current computing
+64. `message()` generates a message according to its argument
+65. __`tryCatch()` evaluates the expression and exception handlers__. [Here](http://mazamascience.com/WorkingWithData/?p=912) is a nice post about error-handlering in R, where the following codes are extracted:
+```R
+result = tryCatch({
+        expr
+}, warning = function(w) {
+        warning-handler-code
+}, error = function(e) {
+     error-handler-code
+}, finally = {
+        cleanup-code
+}
+```
+66. `try(expr)` evaluates an expression and allow user's code to handle exception. Returned value is the value of the expr if no error, but an invisible object containing the error. Can be used in `if` to allow user to handler different exception.
+
+67. `dput` write an R object (e.g., like a functioin) to ASCII file.
+68. `format` an R object for pretty printing. Options `trim = FALSE, digits = NULL, nsmall = 0L, justify = c("left", "right", "centre", "none")`: trim spaces, digits, number of decimals, alignment (justify).
+69. `sink` `capture.output` evaluate expression and write the output to a file
+70. `count.fields` count the number of fields in each row of the file with `sep`
+71. `read.fwf()` read fixed width field data
+72. `readLines(con,n)` read n lines from the connection con
+73. `readRDS(file="")` and `saveRDS(object, file)` read and write a single R object. Useful compared to `load` as the read in data can be renamed `data2 <- readRDS("data.RData"`
+74. `list.files() list.dirs()`
+75. Given a full path as input, `basename` removes the path up to the final file; `dirname` returns the path (excluding the final file).
+76. `file_ext` returns the file extension in the directory
+77. `file.path()` concatenate the string arguments separating by `/`
+78. `path.expand` expandes a relative path to full path. `path.expand("~/foo")` gives `[1] "C:\\Users\\Bing He\\Documents/foo"`
+79. `normalizePaht(x,winslash="//")` express file path in a platform-friendly way. For example, change the backward slash to forward slash to be compatible with windows platform.
+80. `file.choose()` will promot a file selection GUI window
+81. `file.copy, file.create, file.remove, file.rename, dir.create`
+82. `file.exists, file.info`
+83. `tempdir, tempfile` returns a path and name appropriate for temporary directory and file.
+84. `download.file(url,destfile)` download a file from Internet to the destination file `destfile`
+
+

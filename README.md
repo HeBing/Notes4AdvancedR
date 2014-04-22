@@ -162,4 +162,55 @@ result = tryCatch({
 83. `tempdir, tempfile` returns a path and name appropriate for temporary directory and file.
 84. `download.file(url,destfile)` download a file from Internet to the destination file `destfile`
 
+### [Functions](http://adv-r.had.co.nz/Functions.html)
+#### Function Basics
+1. Function is also an R object just like any other R object. There are three components of a function: `body()`, `formals()` (argument list), and `environment()`. Function can have user-defined attributes. For example, you can set the `class()` and add a custom `print()` method.
+2. Primitive functions call C code directly with `.Primitive()` and contain no R code. Primitive functions are only found in the `base` R package.
+3. Use `ls("package:base", all = TRUE)` to list all objects in the base package.
+
+#### Lexical scoping
+1. Four principles of lexical scoping in R
+    * Name masking
+    * Functions v.s. variables
+    * a fresh start
+    * Dynamic lookup
+2. Lexical scoping looks up symbol values based on how functions were nested when they were defined, not how they are nested when they are called. 
+3. First look inside the current function, then where that function was defined, and so on, all the way up to the global environment, and then on to other loaded packages. 
+4. closures: functions created by other functions. It is easy to create a function using a user-defined function, just return the function name. This function will preserve the environment in which it was defined.
+5. Looking up functions are the same as looking up for variable values. When R looks up a name where it is obvious you want a function, R will ignore non-function objects.
+6. Every time a function is called, a new environment is created to host execution. Each invocation of one function is completely independent. 
+7. Lexical scoping determines where to look up variable values. When the function is run, R looks for values, not when it's created.
+8. __You want to make a function self-contained, so that its output only depends on its arguments__. You can use `findGlobals()` function from package `codetools`, which lists all the external dependencies of a function.
+
+#### Every operation is a function call
+1. "everything that exists in an object; everything that happens is a function call." John Chambers
+2. backtick allows you refer to functions or variables that have otherwise reserved or illegal names. For example, `x[3]` is equivalent to ```[`(x,3)``
+3. It is very useful to combined `sapply()/lapply()` with '+' and '['. For example,`x <- list(1:10,4:9,10:15); lappy(x,"[",2)`; this is to get the 2nd element of each component of the list.
+
+#### Calling functions
+1. When calling a funciton, we can specify the arguments by name, by position, and and by partial names. The actual values of arguments are matched to formal arguments, first by exact matching of name, second by partial match of names, and finally by position.
+2. When specifying the arguments, named arguments should be after unamed arugments (matched by position).
+3. __call a function with an argument list__: `do.call(mean,list(1:10,na.rm=TRUE))`
+4. Note you can determine if an argument was supplied or not with the `missing()` inside a function.
+5. When specifying default values but it takes a few lines of code to compute, you can set the default value to `NULL` and then inside the funciton, us `is.null()` to test whether the value is given, then add your lines of code for calcualting the default value.
+
+#### Lazy evaluation
+1. by default, R function arguments are lazy. The arguments are only evaluated if they are actually used. Use `force` to force evluation.
+2. Default values are evaluated inside function. But arguments given function are evaluated in the environment where the function is defined.
+3. Taking advantage of lazy evaluation, we can use `!is.null(a) || stop("a is null\n")`
+
+#### Special calls
+1. infix functions: most functions in R are "prefix" operators, the name of the function comes before the arguments. You can create infix functions where the function name comes in between its arguments, like `+` or `-`.
+2. __User-defined infix functions should start and end with `%`__. Their names can contain any special characters (special characters should be escaped). 
+3. Replacement functions act like they modify their arguments in place (actually they still make a local temporary copy), and have the special name "xxx<-". `"second<-" <- function(x,value) { x[2] <- value; x}`. Use `second(x) <- 5L`.
+4. Most R objects have copy-on-modify semantics. So modifying a function argument does not change the original value. __There are two important excepting to copy-on-modify semantics: reference classes and environment. These can be modified in place, so extra care is needed when working with them__.
+5. pure function: functions that always map the smae input ot hte same output and have no other impact on the workspace.
+6. Most base R function are pure functions. Here are some exceptions:
+    * `library` loads a package and modifies the search path
+    * `setwd, Sys.setenv, Sys.setlocale` change the working dir, environment variables and the locale respectively.
+    * others
+7. Invisible return value: `f2 <- function() invisible(1); f2(); f2()==1;` and `(f2())` actually prints 1.
+8. `on.exit()` the expression inside is called and evluated when the function terminates. Be cautious if you are using multiple `on.exit()` calls, need to set `add = TRUE`. For example, `{old <- setwd(dir); on.exit(setwd(old))}`
+
+### [OO field guide](http://adv-r.had.co.nz/OO-essentials.html)
 

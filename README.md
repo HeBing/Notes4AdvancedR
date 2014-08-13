@@ -213,4 +213,29 @@ result = tryCatch({
 8. `on.exit()` the expression inside is called and evluated when the function terminates. Be cautious if you are using multiple `on.exit()` calls, need to set `add = TRUE`. For example, `{old <- setwd(dir); on.exit(setwd(old))}`
 
 ### [OO field guide](http://adv-r.had.co.nz/OO-essentials.html)
-
+0. base types
+  * base types are internal C struct that describes how that object is stored in memory.
+  * common base types include atomic vectors and lists, functions, environments, and other exotic objects like names, calls, and promises.
+  * determine an object's base type using `typeof()`
+  * method dispatch for base types are written in C (`SWITCH(TYPE)`)
+1. There are 3 OO systems in R: S3, S4, and RC.
+2. S3
+  * S3: generic-function OO. A generic function decides which method to call based on the classes of the input arguments. It is the most commonly used system.
+  * Use `is.object(x) $ !isS4(x)` to determine whether an object is S3 or not
+  * Check source code for a call to `UseMethod()` to determine whether a function is a S3 generic function.
+  * We can use `methods(generic.function,class)` to find out methods belong to a generic function using the 1st args, and list all generic functions that have a method for a given class using the 2nd args.
+  * In S3, defining classes and creating objects are accomplished in one simple step, i.e., `foo <- structure(list(),class="foo")` or `foo <- list(); class(foo) <- "foo"`.
+  * Creating S3 generic function by `f <- function(x) UseMethod("f"); f.a <- function(x) "Class a"; a<- structure(list(),class = "a"); f(a)`
+3. S4
+  * S4 is more formal than S3. S4 requires formal class definitions. It supports multiple inheritance and multiple dispatches. All S4 related code i stored in `library(methods)`. Bioconductors contain rich body of code in S4.
+  * Use `isS4()` to determine whether an object is an S4 object or not.
+  * Use `is(x)` to list all classes that an object inherits from (for both S3 and S4 objects)
+  * Find the documentation for a class with `class?className`
+  * Use `setClass(name, slots, contains)` to define the representation of a class and use `new()` to create one object of the calss. For example, `setClass("Person",slots = list(name = "character",age="numeric")); alice <- new("Person",name="Alice",age=40)`.
+  * access a specific slot of an S4 object by `alice@age` or `slot(alice,"age")`.
+  * Use `setGeneric("union")` to create a new generic in S4 or converts an existing function into a generic. Then use `setMethod()` with name of the generic and the method-associated classes, and the function (i.e.method).
+4. RC (Reference classes)
+  * RC implements message-passing OO. RC objects are mutable (or passed by reference insteat of by value); RC methods belong to objects
+  * Use `setRefClass()` to define a class: `Account <- setRefClass("Account",fields=list(balance="numeric"), methods=list(withdraw=function(x){balance <<- balance -x}))`
+  * Call method use `myAccount$deposit(100)`
+  * use `is(x,"refClass")` to check whether an object is RC or not.

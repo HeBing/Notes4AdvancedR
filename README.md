@@ -8,12 +8,12 @@ by Bing He
     * develop a scientific mindset: try & error
 
 ### [Data sturcture](http://adv-r.had.co.nz/Data-structures.html)
-1. When you attempt to combined different types of atomic vectors, they will be __coerced__ to the most flexible type. Types from least to most flexible are: logic, integer, double, and character.
-2. All objects can have arbitrary additional attributes. Attributes can be thought as named list.
-3. `structure()` function returns a new object with modified attributes, e.g., `structure(1:10, my_attribute = "This is a vector")`.
+1. When you attempt to combined different types of atomic vectors, they will be *_coerced_* to the most flexible type. Types from least to most flexible are: __logic, integer, double, and character__.
+2. All objects can have arbitrary additional attributes. Attributes can be thought as named list. (BH: I found that for objects of base types, their attributes do not contain class; though their class can be accessed through `class()`. For S3 objects, the attributes contain a named element `class`).
+3. `structure()` function returns a new object with modified attributes, e.g., `structure(1:10, my_attribute = "This is a vector")`. (BH: replace `my_attribute` with `class` and this is the way to create an S3 object of the class type).
 4. Remove names of vectors by `unname(x)` or `names(x) = NULL`.
-5. In data loading functions in R, you can use `stringsAsFactor=FALSE` to preventing automatic conversion of character to factor.
-6. use `dimnames()` to change names of array
+5. In data loading functions in R, you can use `stringsAsFactor=FALSE` to preventing automatic conversion of character to factor. (BH: it turns out that setting this arg to FALSE is very helpful/even necessarily when reading tables.)
+6. use `dimnames()` to change names of array.
 7. `abind()` is the generalized version for `cbind()`/`rbind()` for array. `aperm()` is the generalization of `t()` for array.
 8. Under the hood, data frame is a list of equal-length vectors. 
 9. __You can add a column that is a list/array/matrix to a dataframe, using `I()`, e.g. `dfl <- data.frame(x = 1:3, y = I(list(1:2,1:3,1:4)))`__.
@@ -21,17 +21,17 @@ by Bing He
 ### [Subsetting](http://adv-r.had.co.nz/Subsetting.html)
 1. R's subsetting operators are powerful and fast, and mastering them allows you to express complex operations in a succinct fashion few other languages can match.
 2. __Matrices and arrays are implemented as vectors with special attributes (like `dim`), you can also subset them with a single vector. In that case they will behave like a vector. Arrarys in R are stored in column-major order.__
-3. Data frames possess the characteristics of __both lists and matrices__: if you subset with __a single vector__, they behave like lists; if you subset with two vectors, they behave like matrices. For example, `df[c("col1","col2")]` subsets a data frame as it is a list; and `df[,c("col1","col2")]` subsets a data frame as it is a matrix. __There is an important difference if you select a single column: matrix subsetting simplifies by default, list subsetting does not__. In matrix subsetting, you can use the argument `drop=F` to prevent automatic simplification, i.e., `df[,"col1",drop=F]`.
-4. S3 objects are made of atomic vectors, arrays and lists, so you can always use above subsetting techiques to extract a field. For S4 objects, two additional subsetting operators are used `@` (like `$`) and `slot()` (equivalent to `[[`).
+3. Data frames possess the characteristics of __both lists and matrices__: if you subset with __a single vector__, they behave like lists; if you subset with two vectors, they behave like matrices. For example, `df[c("col1","col2")]` subsets a data frame as it is a list; and `df[,c("col1","col2")]` subsets a data frame as it is a matrix. __There is an important difference if you select a single column: matrix subsetting simplifies by default, list subsetting does not__. In matrix subsetting, you can use the argument `drop=F` to prevent automatic simplification, i.e., `df[,"col1",drop=F]` (use `drop=T` is good practice especially matrix computing is involved).
+4. S3 objects are made of atomic vectors, arrays and lists, so you can always use above subsetting techiques to extract a field. For S4 objects, two additional subsetting operators are used `@` (like `$`) and `slot()` (equivalent to `[[`). (BH: `slot()` takes in two arguments, name of the S4 object and name of the slot).
 5. `upper.tri(matrix)` gives TRUE in upper triangle of matrix.
 
 #### Simplifying vs preserving subsetting
-1. Simplifying subsets returns the simplest possible data structure, which is very useful for interactively; preserving subsets returns the output in the same format as the input, which is very useful for programming. 
+1. Simplifying subsets returns the simplest possible data structure, which is very useful interactively; preserving subsets returns the output in the same format as the input, which is very useful for programming. 
 2. omitting `drop=FALSE` in matrix or data frame subsetting will cause unexpected error when someone pass in a single-column data.
 3. There is a very useful table for simplifying v.s. preserving.
     * vector and list: simplifying `[['; perserving `[`
-    * __factor__: simplifying `drop=T`, which can __drop any unused levels__
-    * array: simplifying `drop=FALSE`
+    * __factor__: simplifying `drop=T`, which can __drop any unused levels__ (BH: good one to know!)
+    * array: simplifying `drop=T`
     * data frame: simplifying `x[,1]` or `x[[1]]`; preserving `drop=F` or `x[1]`(i.e., treat data frame as a list.)
 4. `x$y` translates to `x[["y",exact=FALSE]]`. 
     * __When you store a column name in a var `var <- "ryl"`, `mtcars$var` won't work. Instead, use `mtcars[[var]]`__
@@ -39,14 +39,14 @@ by Bing He
 5. Indexing with a blank can be useful in conjunction with assignment because it will preserve the original object class and structure. `mtcars[] <- lapply(mtcars, as.integer)` will return a data frame, while `mtcars <- lapply(mtcars, as.integer)` will return a list.
 6. You can use `x <- list(a=1,b=2); x[["b"]] <- NULL` to remove components from a list. You can do this with data.frame to remove columns.
 7. __A very nice example for Lookup table__: `sex <- c("m","f","m","m","m","f"); lookup <- c(m = "Male", f="Female")`.  Then do `lookup[x]`.
-8. __A very nice example for matching and merging__: `grade <- c(1,2,2,3,1); info <- data.frame(grade = 3:1, desc=c("Excellent", "Good", "Poor")`. There are two ways of matching: `id <- match(grades, infor$grade); info[id,]`. __here `match()` returns the positions of first argument's matches elements in the second argument__. Or use `rownames(info) <- info$grade; info[as.character(grades),]`
+8. __A very nice example for matching and merging__: `grade <- c(1,2,2,3,1); info <- data.frame(grade = 3:1, desc=c("Excellent", "Good", "Poor")`. There are two ways of matching: `id <- match(grades, info$grade); info[id,]`. __here `match()` returns the positions of first argument's matches elements in the second argument__. Or use `rownames(info) <- info$grade; info[as.character(grades),]`
 9. use `df[setdiff(names(df),"z")]` to keep the columns except for `z`.
 10. `subset()` is a shorthand function for subsetting data frames and saves some typing. For example, `subset(mtcars, cyl==4)`.
 11. Set operations in R: `intersect(x,y); union(x,y); setdiff(x,y)` and `setdiff(union(x,y),intersect(x,y))` for XOR.
 
 ### [Vocabulary](http://adv-r.had.co.nz/Vocabulary.html)
 #### Basics
-1. `<<-`: if var name is not found in local environment, search parent environment until global environment.
+1. `<<-`: if var name is not found in local environment, search parent environment until global environment. (BH: this one is useful when creating RC reference class object.)
 2. `match(x,table)` returns the positions of (first) matches of `x`'s elements in `table`
 3. `subset(x,subset,select)` subset matrices/data frames that meet conditions. `x` the matrices/data frame to be subsetted. `subset` logical expression to select elements (1-dim) or rows (higher dim); `select` logical expression to select columns.
     * For example, `data(CO2); subset(CO2,Plant == "Qn1", conc)`. Note `Plant` and `conc` are column names in data frame `CO2`.
@@ -57,7 +57,7 @@ by Bing He
     * `all.equal(tan(d45),rep(1,10))` gives `TRUE`.
     * `all.equal(tan(d45),rep(1,10),tolerance=0)` gives `"Mean relative difference: 1.29526e-15"`. Comparing the above two examples, we know that `all.equal()` allows for small difference in numeric results.
     * `all(tan(d45)==rep(1,10))` gives `FALSE`, because `all` is exact match in R.
-8. `identical()` can be used to test whether two R objects are exactly the same. It is a safe and good way compared than `==`, `&&`
+8. `identical()` can be used to test whether two R objects are exactly the same. It is a safe and good way compared to `==`, `&&`
 9. `is.finite()` test for `Inf` in data.
 10. `%%` modulas calculator. `%/%` integer division `5%/%2` is `2`.
 11. `sign,acos,asin,atan,atan2`; for positive arguments `atan2(y, x) == atan(y/x)`. 
@@ -68,7 +68,7 @@ by Bing He
 16. `range()`
 17. `rle()`: run length encoding and `inverse.rle()` reconstructs vectors from run length encoding.
 18. `missing()` can be used to test whether a value was specified as an argument to a function. 
-19. `on.exit(expr = NULL, add = FALSE)`: execute code on exit of function. Typical use for graphic parameter settings: `test <- function(x) {oldpar <- par(frow=c(2,2)); on.exit(par(oldpar))}`
+19. `on.exit(expr = NULL, add = FALSE)`: execute code on exit of function. Typical use for graphic parameter settings: `test <- function(x) {oldpar <- par(frow=c(2,2)); on.exit(par(oldpar))}`.
 20. `invisible()` return an invisible copy (not print if not assigned) from a function.
 21. `isTRUE(expr)` is equivalent to `identical(TRUE, expr)`
 22. `xor(x,y)`
@@ -93,7 +93,7 @@ by Bing He
     * `grep(x,pattern,value=FALSE)` returns the incides of the elements of `x` to `pattern`; 
     * `grep(x,pattern,value=TRUE)` returns the character vectors containing the matched elements.
     * `grepl` returns a logical vector
-39. `sub/gsub(x,pattern,replacement)` substitute matches in `x` to `pattern` with `replacement`. `gsub()` is global substitution (all matches); `sub` is first match. 
+39. `sub/gsub(pattern,replacement,x)` substitute matches in `x` to `pattern` with `replacement`. `gsub()` is global substitution (all matches); `sub` is first match. 
     * use `perl=TRUE` to enable perl-style regular expression.
 40. `strsplit(x,split,perl)` split each element in `x` by `split`. The return value is `list`, you can use `unlist()` to transform the returned value to a vector.
 41. `chartr(old,new,x)` translate each character in `x` from `old` to `new`. For example, `chartr("iXs", "why", x)`.
@@ -124,38 +124,33 @@ by Bing He
 59. `help.search("linear models")`
 
 #### Debugging and error handling
-60. `options(error = recover)` when error occurs, automatically list the current active function calls. By selecting a function call, this allows user to browse directly on the function call; can also be called with `recover()`. After choosing an active function call, then it behaves just like `browser()`.
+60. `options(error = recover)` when error occurs, automatically list the current active function calls. By selecting a function call, this allows user to browse directly on the function call; can also be called with `recover()`. After choosing an active function call, then it behaves just like `browser()`. [=(BH: this `recover()` seems very helpful!)
 61. `geterrmessage()` gives the last error.
 62. `warning("test it")` generates a warning that corresponds to its argument
 63. `stop("error here!\n")` stop current computing
 64. `message()` generates a message according to its argument
 65. __`tryCatch()` evaluates the expression and exception handlers__. [Here](http://mazamascience.com/WorkingWithData/?p=912) is a nice post about error-handlering in R, where the following codes are extracted:
-```R
-result = tryCatch({
-        expr
-}, warning = function(w) {
-        warning-handler-code
-}, error = function(e) {
-     error-handler-code
-}, finally = {
-        cleanup-code
+66. `try(expr)` evaluates an expression and allow user's code to handle exception. Returned value is the value of the expr if no error, but an invisible object containing the error. Can be used in `if` to allow user to handler different exception.
+```r
+# error handling block
+test = try(length(intersect(motifSite[current,start:end], peak[i,start:end])))
+if(class(test) == "try-error") {
+  browser()
 }
 ```
-66. `try(expr)` evaluates an expression and allow user's code to handle exception. Returned value is the value of the expr if no error, but an invisible object containing the error. Can be used in `if` to allow user to handler different exception.
-
 67. `dput` write an R object (e.g., like a functioin) to ASCII file.
 68. `format` an R object for pretty printing. Options `trim = FALSE, digits = NULL, nsmall = 0L, justify = c("left", "right", "centre", "none")`: trim spaces, digits, number of decimals, alignment (justify).
 69. `sink` `capture.output` evaluate expression and write the output to a file
 70. `count.fields` count the number of fields in each row of the file with `sep`
 71. `read.fwf()` read fixed width field data
 72. `readLines(con,n)` read n lines from the connection con
-73. `readRDS(file="")` and `saveRDS(object, file)` read and write a single R object. Useful compared to `load` as the read in data can be renamed `data2 <- readRDS("data.RData"`
+73. `readRDS(file="")` and `saveRDS(object, file)` read and write a single R object. Useful compared to `load` as the read in data can be renamed `data2 <- readRDS("data.RData")`
 74. `list.files() list.dirs()`
 75. Given a full path as input, `basename` removes the path up to the final file; `dirname` returns the path (excluding the final file).
 76. `file_ext` returns the file extension in the directory
 77. `file.path()` concatenate the string arguments separating by `/`
 78. `path.expand` expandes a relative path to full path. `path.expand("~/foo")` gives `[1] "C:\\Users\\Bing He\\Documents/foo"`
-79. `normalizePaht(x,winslash="//")` express file path in a platform-friendly way. For example, change the backward slash to forward slash to be compatible with windows platform.
+79. `normalizePath(x,winslash="//")` express file path in a platform-friendly way. For example, change the backward slash to forward slash to be compatible with windows platform.
 80. `file.choose()` will promot a file selection GUI window
 81. `file.copy, file.create, file.remove, file.rename, dir.create`
 82. `file.exists, file.info`
@@ -164,8 +159,8 @@ result = tryCatch({
 
 ### [Functions](http://adv-r.had.co.nz/Functions.html)
 #### Function Basics
-1. Function is also an R object just like any other R object. There are three components of a function: `body()`, `formals()` (argument list), and `environment()`. Function can have user-defined attributes. For example, you can set the `class()` and add a custom `print()` method.
-2. Primitive functions call C code directly with `.Primitive()` and contain no R code. Primitive functions are only found in the `base` R package.
+1. Function is also an R object just like any other R object. There are three components of a function: `body()`, `formals()` (argument list), and `environment()`. Function can have user-defined attributes. For example, you can set the `class()` and add a custom `print()` method (BH: it is actually adding a method associated with a user-created class to the S3 generic function `print`, see OO field guide).
+2. Primitive functions call C code directly with `.Primitive()` and contain no R code. Primitive functions are only found in the `base` R package. Use `is.primitive()` to check whether a function is or not.
 3. Use `ls("package:base", all = TRUE)` to list all objects in the base package.
 
 #### Lexical scoping
@@ -176,7 +171,7 @@ result = tryCatch({
     * Dynamic lookup
 2. Lexical scoping looks up symbol values based on how functions were nested when they were defined, not how they are nested when they are called. 
 3. First look inside the current function, then where that function was defined, and so on, all the way up to the global environment, and then on to other loaded packages. 
-4. closures: functions created by other functions. It is easy to create a function using a user-defined function, just return the function name. This function will preserve the environment in which it was defined.
+4. closures: functions created by other functions. It is easy to create a function using a user-defined function, just return the function name. This function will preserve the environment in which it was defined. 
 5. Looking up functions are the same as looking up for variable values. When R looks up a name where it is obvious you want a function, R will ignore non-function objects.
 6. Every time a function is called, a new environment is created to host execution. Each invocation of one function is completely independent. 
 7. Lexical scoping determines where to look up variable values. When the function is run, R looks for values, not when it's created.
@@ -204,7 +199,7 @@ result = tryCatch({
 2. __User-defined infix functions should start and end with `%`__. Their names can contain any special characters (special characters should be escaped). 
 3. Replacement functions act like they modify their arguments in place (actually they still make a local temporary copy), and have the special name "xxx<-". `"second<-" <- function(x,value) { x[2] <- value; x}`. Use `second(x) <- 5L`.
 4. Most R objects have copy-on-modify semantics. So modifying a function argument does not change the original value. __There are two important excepting to copy-on-modify semantics: reference classes and environment. These can be modified in place, so extra care is needed when working with them__.
-5. pure function: functions that always map the smae input ot hte same output and have no other impact on the workspace.
+5. pure function: functions that always map the same input to the same output and have no other impact on the workspace.
 6. Most base R function are pure functions. Here are some exceptions:
     * `library` loads a package and modifies the search path
     * `setwd, Sys.setenv, Sys.setlocale` change the working dir, environment variables and the locale respectively.

@@ -160,7 +160,7 @@ hr {
 <h3><a href="http://adv-r.had.co.nz/Data-structures.html">Data sturcture</a></h3>
 
 <ol>
-<li>When you attempt to combined different types of atomic vectors, they will be <strong>coerced</strong> to the most flexible type. Types from least to most flexible are: logic, integer, double, and character.</li>
+<li>When you attempt to combined different types of atomic vectors, they will be <em><em>coerced</em></em> to the most flexible type. Types from least to most flexible are: logic, integer, double, and character.</li>
 <li>All objects can have arbitrary additional attributes. Attributes can be thought as named list.</li>
 <li><code>structure()</code> function returns a new object with modified attributes, e.g., <code>structure(1:10, my_attribute = &quot;This is a vector&quot;)</code>.</li>
 <li>Remove names of vectors by <code>unname(x)</code> or <code>names(x) = NULL</code>.</li>
@@ -432,12 +432,43 @@ result = tryCatch({
 <h3><a href="http://adv-r.had.co.nz/OO-essentials.html">OO field guide</a></h3>
 
 <ol>
-<li>There are 3 OO systems in R:
+<li>base types
 
 <ul>
-<li>S3</li>
-<li>S4</li>
-<li>S5</li>
+<li>base types are internal C struct that describes how that object is stored in memory.</li>
+<li>common base types include atomic vectors and lists, functions, environments, and other exotic objects like names, calls, and promises.</li>
+<li>determine an object&#39;s base type using <code>typeof()</code></li>
+<li>method dispatch for base types are written in C (<code>SWITCH(TYPE)</code>)</li>
+</ul></li>
+<li>There are 3 OO systems in R: S3, S4, and RC.</li>
+<li>S3
+
+<ul>
+<li>S3: generic-function OO. A generic function decides which method to call based on the classes of the input arguments. It is the most commonly used system.</li>
+<li>Use <code>is.object(x) $ !isS4(x)</code> to determine whether an object is S3 or not</li>
+<li>Check source code for a call to <code>UseMethod()</code> to determine whether a function is a S3 generic function.</li>
+<li>We can use <code>methods(generic.function,class)</code> to find out methods belong to a generic function using the 1st args, and list all generic functions that have a method for a given class using the 2nd args.</li>
+<li>In S3, defining classes and creating objects are accomplished in one simple step, i.e., <code>foo &lt;- structure(list(),class=&quot;foo&quot;)</code> or <code>foo &lt;- list(); class(foo) &lt;- &quot;foo&quot;</code>.</li>
+<li>Creating S3 generic function by <code>f &lt;- function(x) UseMethod(&quot;f&quot;); f.a &lt;- function(x) &quot;Class a&quot;; a&lt;- structure(list(),class = &quot;a&quot;); f(a)</code></li>
+</ul></li>
+<li>S4
+
+<ul>
+<li>S4 is more formal than S3. S4 requires formal class definitions. It supports multiple inheritance and multiple dispatches. All S4 related code i stored in <code>library(methods)</code>. Bioconductors contain rich body of code in S4.</li>
+<li>Use <code>isS4()</code> to determine whether an object is an S4 object or not.</li>
+<li>Use <code>is(x)</code> to list all classes that an object inherits from (for both S3 and S4 objects)</li>
+<li>Find the documentation for a class with <code>class?className</code></li>
+<li>Use <code>setClass(name, slots, contains)</code> to define the representation of a class and use <code>new()</code> to create one object of the calss. For example, <code>setClass(&quot;Person&quot;,slots = list(name = &quot;character&quot;,age=&quot;numeric&quot;)); alice &lt;- new(&quot;Person&quot;,name=&quot;Alice&quot;,age=40)</code>.</li>
+<li>access a specific slot of an S4 object by <code>alice@age</code> or <code>slot(alice,&quot;age&quot;)</code>.</li>
+<li>Use <code>setGeneric(&quot;union&quot;)</code> to create a new generic in S4 or converts an existing function into a generic. Then use <code>setMethod()</code> with name of the generic and the method-associated classes, and the function (i.e.method).</li>
+</ul></li>
+<li>RC (Reference classes)
+
+<ul>
+<li>RC implements message-passing OO. RC objects are mutable (or passed by reference insteat of by value); RC methods belong to objects</li>
+<li>Use <code>setRefClass()</code> to define a class: <code>Account &lt;- setRefClass(&quot;Account&quot;,fields=list(balance=&quot;numeric&quot;), methods=list(withdraw=function(x){balance &lt;&lt;- balance -x}))</code></li>
+<li>Call method use <code>myAccount$deposit(100)</code></li>
+<li>use <code>is(x,&quot;refClass&quot;)</code> to check whether an object is RC or not.</li>
 </ul></li>
 </ol>
 

@@ -160,12 +160,12 @@ hr {
 <h3><a href="http://adv-r.had.co.nz/Data-structures.html">Data sturcture</a></h3>
 
 <ol>
-<li>When you attempt to combined different types of atomic vectors, they will be <em><em>coerced</em></em> to the most flexible type. Types from least to most flexible are: logic, integer, double, and character.</li>
-<li>All objects can have arbitrary additional attributes. Attributes can be thought as named list.</li>
-<li><code>structure()</code> function returns a new object with modified attributes, e.g., <code>structure(1:10, my_attribute = &quot;This is a vector&quot;)</code>.</li>
+<li>When you attempt to combined different types of atomic vectors, they will be <em><em>coerced</em></em> to the most flexible type. Types from least to most flexible are: <strong>logic, integer, double, and character</strong>.</li>
+<li>All objects can have arbitrary additional attributes. Attributes can be thought as named list. (BH: I found that for objects of base types, their attributes do not contain class; though their class can be accessed through <code>class()</code>. For S3 objects, the attributes contain a named element <code>class</code>).</li>
+<li><code>structure()</code> function returns a new object with modified attributes, e.g., <code>structure(1:10, my_attribute = &quot;This is a vector&quot;)</code>. (BH: replace <code>my_attribute</code> with <code>class</code> and this is the way to create an S3 object of the class type).</li>
 <li>Remove names of vectors by <code>unname(x)</code> or <code>names(x) = NULL</code>.</li>
-<li>In data loading functions in R, you can use <code>stringsAsFactor=FALSE</code> to preventing automatic conversion of character to factor.</li>
-<li>use <code>dimnames()</code> to change names of array</li>
+<li>In data loading functions in R, you can use <code>stringsAsFactor=FALSE</code> to preventing automatic conversion of character to factor. (BH: it turns out that setting this arg to FALSE is very helpful/even necessarily when reading tables.)</li>
+<li>use <code>dimnames()</code> to change names of array.</li>
 <li><code>abind()</code> is the generalized version for <code>cbind()</code>/<code>rbind()</code> for array. <code>aperm()</code> is the generalization of <code>t()</code> for array.</li>
 <li>Under the hood, data frame is a list of equal-length vectors. </li>
 <li><strong>You can add a column that is a list/array/matrix to a dataframe, using <code>I()</code>, e.g. <code>dfl &lt;- data.frame(x = 1:3, y = I(list(1:2,1:3,1:4)))</code></strong>.</li>
@@ -176,22 +176,22 @@ hr {
 <ol>
 <li>R&#39;s subsetting operators are powerful and fast, and mastering them allows you to express complex operations in a succinct fashion few other languages can match.</li>
 <li><strong>Matrices and arrays are implemented as vectors with special attributes (like <code>dim</code>), you can also subset them with a single vector. In that case they will behave like a vector. Arrarys in R are stored in column-major order.</strong></li>
-<li>Data frames possess the characteristics of <strong>both lists and matrices</strong>: if you subset with <strong>a single vector</strong>, they behave like lists; if you subset with two vectors, they behave like matrices. For example, <code>df[c(&quot;col1&quot;,&quot;col2&quot;)]</code> subsets a data frame as it is a list; and <code>df[,c(&quot;col1&quot;,&quot;col2&quot;)]</code> subsets a data frame as it is a matrix. <strong>There is an important difference if you select a single column: matrix subsetting simplifies by default, list subsetting does not</strong>. In matrix subsetting, you can use the argument <code>drop=F</code> to prevent automatic simplification, i.e., <code>df[,&quot;col1&quot;,drop=F]</code>.</li>
-<li>S3 objects are made of atomic vectors, arrays and lists, so you can always use above subsetting techiques to extract a field. For S4 objects, two additional subsetting operators are used <code>@</code> (like <code>$</code>) and <code>slot()</code> (equivalent to <code>[[</code>).</li>
+<li>Data frames possess the characteristics of <strong>both lists and matrices</strong>: if you subset with <strong>a single vector</strong>, they behave like lists; if you subset with two vectors, they behave like matrices. For example, <code>df[c(&quot;col1&quot;,&quot;col2&quot;)]</code> subsets a data frame as it is a list; and <code>df[,c(&quot;col1&quot;,&quot;col2&quot;)]</code> subsets a data frame as it is a matrix. <strong>There is an important difference if you select a single column: matrix subsetting simplifies by default, list subsetting does not</strong>. In matrix subsetting, you can use the argument <code>drop=F</code> to prevent automatic simplification, i.e., <code>df[,&quot;col1&quot;,drop=F]</code> (use <code>drop=T</code> is good practice especially matrix computing is involved).</li>
+<li>S3 objects are made of atomic vectors, arrays and lists, so you can always use above subsetting techiques to extract a field. For S4 objects, two additional subsetting operators are used <code>@</code> (like <code>$</code>) and <code>slot()</code> (equivalent to <code>[[</code>). (BH: <code>slot()</code> takes in two arguments, name of the S4 object and name of the slot).</li>
 <li><code>upper.tri(matrix)</code> gives TRUE in upper triangle of matrix.</li>
 </ol>
 
 <h4>Simplifying vs preserving subsetting</h4>
 
 <ol>
-<li>Simplifying subsets returns the simplest possible data structure, which is very useful for interactively; preserving subsets returns the output in the same format as the input, which is very useful for programming. </li>
+<li>Simplifying subsets returns the simplest possible data structure, which is very useful interactively; preserving subsets returns the output in the same format as the input, which is very useful for programming. </li>
 <li>omitting <code>drop=FALSE</code> in matrix or data frame subsetting will cause unexpected error when someone pass in a single-column data.</li>
 <li>There is a very useful table for simplifying v.s. preserving.
 
 <ul>
 <li>vector and list: simplifying <code>[[&#39;; perserving</code>[</li>
-<li><strong>factor</strong>: simplifying <code>drop=T</code>, which can <strong>drop any unused levels</strong></li>
-<li>array: simplifying <code>drop=FALSE</code></li>
+<li><strong>factor</strong>: simplifying <code>drop=T</code>, which can <strong>drop any unused levels</strong> (BH: good one to know!)</li>
+<li>array: simplifying <code>drop=T</code></li>
 <li>data frame: simplifying <code>x[,1]</code> or <code>x[[1]]</code>; preserving <code>drop=F</code> or <code>x[1]</code>(i.e., treat data frame as a list.)</li>
 </ul></li>
 <li><code>x$y</code> translates to <code>x[[&quot;y&quot;,exact=FALSE]]</code>. 
@@ -203,7 +203,7 @@ hr {
 <li>Indexing with a blank can be useful in conjunction with assignment because it will preserve the original object class and structure. <code>mtcars[] &lt;- lapply(mtcars, as.integer)</code> will return a data frame, while <code>mtcars &lt;- lapply(mtcars, as.integer)</code> will return a list.</li>
 <li>You can use <code>x &lt;- list(a=1,b=2); x[[&quot;b&quot;]] &lt;- NULL</code> to remove components from a list. You can do this with data.frame to remove columns.</li>
 <li><strong>A very nice example for Lookup table</strong>: <code>sex &lt;- c(&quot;m&quot;,&quot;f&quot;,&quot;m&quot;,&quot;m&quot;,&quot;m&quot;,&quot;f&quot;); lookup &lt;- c(m = &quot;Male&quot;, f=&quot;Female&quot;)</code>.  Then do <code>lookup[x]</code>.</li>
-<li><strong>A very nice example for matching and merging</strong>: <code>grade &lt;- c(1,2,2,3,1); info &lt;- data.frame(grade = 3:1, desc=c(&quot;Excellent&quot;, &quot;Good&quot;, &quot;Poor&quot;)</code>. There are two ways of matching: <code>id &lt;- match(grades, infor$grade); info[id,]</code>. <strong>here <code>match()</code> returns the positions of first argument&#39;s matches elements in the second argument</strong>. Or use <code>rownames(info) &lt;- info$grade; info[as.character(grades),]</code></li>
+<li><strong>A very nice example for matching and merging</strong>: <code>grade &lt;- c(1,2,2,3,1); info &lt;- data.frame(grade = 3:1, desc=c(&quot;Excellent&quot;, &quot;Good&quot;, &quot;Poor&quot;)</code>. There are two ways of matching: <code>id &lt;- match(grades, info$grade); info[id,]</code>. <strong>here <code>match()</code> returns the positions of first argument&#39;s matches elements in the second argument</strong>. Or use <code>rownames(info) &lt;- info$grade; info[as.character(grades),]</code></li>
 <li>use <code>df[setdiff(names(df),&quot;z&quot;)]</code> to keep the columns except for <code>z</code>.</li>
 <li><code>subset()</code> is a shorthand function for subsetting data frames and saves some typing. For example, <code>subset(mtcars, cyl==4)</code>.</li>
 <li>Set operations in R: <code>intersect(x,y); union(x,y); setdiff(x,y)</code> and <code>setdiff(union(x,y),intersect(x,y))</code> for XOR.</li>
@@ -214,7 +214,7 @@ hr {
 <h4>Basics</h4>
 
 <ol>
-<li><code>&lt;&lt;-</code>: if var name is not found in local environment, search parent environment until global environment.</li>
+<li><code>&lt;&lt;-</code>: if var name is not found in local environment, search parent environment until global environment. (BH: this one is useful when creating RC reference class object.)</li>
 <li><code>match(x,table)</code> returns the positions of (first) matches of <code>x</code>&#39;s elements in <code>table</code></li>
 <li><code>subset(x,subset,select)</code> subset matrices/data frames that meet conditions. <code>x</code> the matrices/data frame to be subsetted. <code>subset</code> logical expression to select elements (1-dim) or rows (higher dim); <code>select</code> logical expression to select columns.
 
@@ -231,7 +231,7 @@ hr {
 <li><code>all.equal(tan(d45),rep(1,10),tolerance=0)</code> gives <code>&quot;Mean relative difference: 1.29526e-15&quot;</code>. Comparing the above two examples, we know that <code>all.equal()</code> allows for small difference in numeric results.</li>
 <li><code>all(tan(d45)==rep(1,10))</code> gives <code>FALSE</code>, because <code>all</code> is exact match in R.</li>
 </ul></li>
-<li><code>identical()</code> can be used to test whether two R objects are exactly the same. It is a safe and good way compared than <code>==</code>, <code>&amp;&amp;</code></li>
+<li><code>identical()</code> can be used to test whether two R objects are exactly the same. It is a safe and good way compared to <code>==</code>, <code>&amp;&amp;</code></li>
 <li><code>is.finite()</code> test for <code>Inf</code> in data.</li>
 <li><code>%%</code> modulas calculator. <code>%/%</code> integer division <code>5%/%2</code> is <code>2</code>.</li>
 <li><code>sign,acos,asin,atan,atan2</code>; for positive arguments <code>atan2(y, x) == atan(y/x)</code>. </li>
@@ -242,7 +242,7 @@ hr {
 <li><code>range()</code></li>
 <li><code>rle()</code>: run length encoding and <code>inverse.rle()</code> reconstructs vectors from run length encoding.</li>
 <li><code>missing()</code> can be used to test whether a value was specified as an argument to a function. </li>
-<li><code>on.exit(expr = NULL, add = FALSE)</code>: execute code on exit of function. Typical use for graphic parameter settings: <code>test &lt;- function(x) {oldpar &lt;- par(frow=c(2,2)); on.exit(par(oldpar))}</code></li>
+<li><code>on.exit(expr = NULL, add = FALSE)</code>: execute code on exit of function. Typical use for graphic parameter settings: <code>test &lt;- function(x) {oldpar &lt;- par(frow=c(2,2)); on.exit(par(oldpar))}</code>.</li>
 <li><code>invisible()</code> return an invisible copy (not print if not assigned) from a function.</li>
 <li><code>isTRUE(expr)</code> is equivalent to <code>identical(TRUE, expr)</code></li>
 <li><code>xor(x,y)</code></li>
@@ -273,7 +273,7 @@ hr {
 <li><code>grep(x,pattern,value=TRUE)</code> returns the character vectors containing the matched elements.</li>
 <li><code>grepl</code> returns a logical vector</li>
 </ul></li>
-<li><code>sub/gsub(x,pattern,replacement)</code> substitute matches in <code>x</code> to <code>pattern</code> with <code>replacement</code>. <code>gsub()</code> is global substitution (all matches); <code>sub</code> is first match. 
+<li><code>sub/gsub(pattern,replacement,x)</code> substitute matches in <code>x</code> to <code>pattern</code> with <code>replacement</code>. <code>gsub()</code> is global substitution (all matches); <code>sub</code> is first match. 
 
 <ul>
 <li>use <code>perl=TRUE</code> to enable perl-style regular expression.</li>
@@ -316,42 +316,38 @@ hr {
 <h4>Debugging and error handling</h4>
 
 <ol>
-<li><code>options(error = recover)</code> when error occurs, automatically list the current active function calls. By selecting a function call, this allows user to browse directly on the function call; can also be called with <code>recover()</code>. After choosing an active function call, then it behaves just like <code>browser()</code>.</li>
+<li><code>options(error = recover)</code> when error occurs, automatically list the current active function calls. By selecting a function call, this allows user to browse directly on the function call; can also be called with <code>recover()</code>. After choosing an active function call, then it behaves just like <code>browser()</code>. [=(BH: this <code>recover()</code> seems very helpful!)</li>
 <li><code>geterrmessage()</code> gives the last error.</li>
 <li><code>warning(&quot;test it&quot;)</code> generates a warning that corresponds to its argument</li>
 <li><code>stop(&quot;error here!\n&quot;)</code> stop current computing</li>
 <li><code>message()</code> generates a message according to its argument</li>
-<li>__<code>tryCatch()</code> evaluates the expression and exception handlers__. <a href="http://mazamascience.com/WorkingWithData/?p=912">Here</a> is a nice post about error-handlering in R, where the following codes are extracted:
-<code>R
-result = tryCatch({
-    expr
-}, warning = function(w) {
-    warning-handler-code
-}, error = function(e) {
- error-handler-code
-}, finally = {
-    cleanup-code
+<li><strong><code>tryCatch()</code> evaluates the expression and exception handlers</strong>. <a href="http://mazamascience.com/WorkingWithData/?p=912">Here</a> is a nice post about error-handlering in R, where the following codes are extracted:</li>
+<li><code>try(expr)</code> evaluates an expression and allow user&#39;s code to handle exception. Returned value is the value of the expr if no error, but an invisible object containing the error. Can be used in <code>if</code> to allow user to handler different exception.
+<code>r
+# error handling block
+test = try(length(intersect(motifSite[current,start:end], peak[i,start:end])))
+if(class(test) == &quot;try-error&quot;) {
+browser()
 }
 </code></li>
-<li><p><code>try(expr)</code> evaluates an expression and allow user&#39;s code to handle exception. Returned value is the value of the expr if no error, but an invisible object containing the error. Can be used in <code>if</code> to allow user to handler different exception.</p></li>
-<li><p><code>dput</code> write an R object (e.g., like a functioin) to ASCII file.</p></li>
-<li><p><code>format</code> an R object for pretty printing. Options <code>trim = FALSE, digits = NULL, nsmall = 0L, justify = c(&quot;left&quot;, &quot;right&quot;, &quot;centre&quot;, &quot;none&quot;)</code>: trim spaces, digits, number of decimals, alignment (justify).</p></li>
-<li><p><code>sink</code> <code>capture.output</code> evaluate expression and write the output to a file</p></li>
-<li><p><code>count.fields</code> count the number of fields in each row of the file with <code>sep</code></p></li>
-<li><p><code>read.fwf()</code> read fixed width field data</p></li>
-<li><p><code>readLines(con,n)</code> read n lines from the connection con</p></li>
-<li><p><code>readRDS(file=&quot;&quot;)</code> and <code>saveRDS(object, file)</code> read and write a single R object. Useful compared to <code>load</code> as the read in data can be renamed <code>data2 &lt;- readRDS(&quot;data.RData&quot;</code></p></li>
-<li><p><code>list.files() list.dirs()</code></p></li>
-<li><p>Given a full path as input, <code>basename</code> removes the path up to the final file; <code>dirname</code> returns the path (excluding the final file).</p></li>
-<li><p><code>file_ext</code> returns the file extension in the directory</p></li>
-<li><p><code>file.path()</code> concatenate the string arguments separating by <code>/</code></p></li>
-<li><p><code>path.expand</code> expandes a relative path to full path. <code>path.expand(&quot;~/foo&quot;)</code> gives <code>[1] &quot;C:\\Users\\Bing He\\Documents/foo&quot;</code></p></li>
-<li><p><code>normalizePaht(x,winslash=&quot;//&quot;)</code> express file path in a platform-friendly way. For example, change the backward slash to forward slash to be compatible with windows platform.</p></li>
-<li><p><code>file.choose()</code> will promot a file selection GUI window</p></li>
-<li><p><code>file.copy, file.create, file.remove, file.rename, dir.create</code></p></li>
-<li><p><code>file.exists, file.info</code></p></li>
-<li><p><code>tempdir, tempfile</code> returns a path and name appropriate for temporary directory and file.</p></li>
-<li><p><code>download.file(url,destfile)</code> download a file from Internet to the destination file <code>destfile</code></p></li>
+<li><code>dput</code> write an R object (e.g., like a functioin) to ASCII file.</li>
+<li><code>format</code> an R object for pretty printing. Options <code>trim = FALSE, digits = NULL, nsmall = 0L, justify = c(&quot;left&quot;, &quot;right&quot;, &quot;centre&quot;, &quot;none&quot;)</code>: trim spaces, digits, number of decimals, alignment (justify).</li>
+<li><code>sink</code> <code>capture.output</code> evaluate expression and write the output to a file</li>
+<li><code>count.fields</code> count the number of fields in each row of the file with <code>sep</code></li>
+<li><code>read.fwf()</code> read fixed width field data</li>
+<li><code>readLines(con,n)</code> read n lines from the connection con</li>
+<li><code>readRDS(file=&quot;&quot;)</code> and <code>saveRDS(object, file)</code> read and write a single R object. Useful compared to <code>load</code> as the read in data can be renamed <code>data2 &lt;- readRDS(&quot;data.RData&quot;)</code></li>
+<li><code>list.files() list.dirs()</code></li>
+<li>Given a full path as input, <code>basename</code> removes the path up to the final file; <code>dirname</code> returns the path (excluding the final file).</li>
+<li><code>file_ext</code> returns the file extension in the directory</li>
+<li><code>file.path()</code> concatenate the string arguments separating by <code>/</code></li>
+<li><code>path.expand</code> expandes a relative path to full path. <code>path.expand(&quot;~/foo&quot;)</code> gives <code>[1] &quot;C:\\Users\\Bing He\\Documents/foo&quot;</code></li>
+<li><code>normalizePath(x,winslash=&quot;//&quot;)</code> express file path in a platform-friendly way. For example, change the backward slash to forward slash to be compatible with windows platform.</li>
+<li><code>file.choose()</code> will promot a file selection GUI window</li>
+<li><code>file.copy, file.create, file.remove, file.rename, dir.create</code></li>
+<li><code>file.exists, file.info</code></li>
+<li><code>tempdir, tempfile</code> returns a path and name appropriate for temporary directory and file.</li>
+<li><code>download.file(url,destfile)</code> download a file from Internet to the destination file <code>destfile</code></li>
 </ol>
 
 <h3><a href="http://adv-r.had.co.nz/Functions.html">Functions</a></h3>
@@ -359,14 +355,15 @@ result = tryCatch({
 <h4>Function Basics</h4>
 
 <ol>
-<li>Function is also an R object just like any other R object. There are three components of a function: <code>body()</code>, <code>formals()</code> (argument list), and <code>environment()</code>. Function can have user-defined attributes. For example, you can set the <code>class()</code> and add a custom <code>print()</code> method.</li>
-<li>Primitive functions call C code directly with <code>.Primitive()</code> and contain no R code. Primitive functions are only found in the <code>base</code> R package.</li>
+<li>Function is also an R object just like any other R object. There are three components of a function: <code>body()</code>, <code>formals()</code> (argument list), and <code>environment()</code>. Function can have user-defined attributes. For example, you can set the <code>class()</code> and add a custom <code>print()</code> method (BH: it is actually adding a method associated with a user-created class to the S3 generic function <code>print</code>, see OO field guide).</li>
+<li>Primitive functions call C code directly with <code>.Primitive()</code> and contain no R code. Primitive functions are only found in the <code>base</code> R package. Use <code>is.primitive()</code> to check whether a function is or not.</li>
 <li>Use <code>ls(&quot;package:base&quot;, all = TRUE)</code> to list all objects in the base package.</li>
 </ol>
 
 <h4>Lexical scoping</h4>
 
 <ol>
+<li>Lexical scoping looks up symbol values based on how function were nested when they were created (i.e., their enclosing environments), but not how they were nested when they were called (calling environments). So with lexical scoping, we do not need to know how the function is called but only where the function is defined. </li>
 <li>Four principles of lexical scoping in R
 
 <ul>
@@ -377,10 +374,10 @@ result = tryCatch({
 </ul></li>
 <li>Lexical scoping looks up symbol values based on how functions were nested when they were defined, not how they are nested when they are called. </li>
 <li>First look inside the current function, then where that function was defined, and so on, all the way up to the global environment, and then on to other loaded packages. </li>
-<li>closures: functions created by other functions. It is easy to create a function using a user-defined function, just return the function name. This function will preserve the environment in which it was defined.</li>
+<li>closures: functions created by other functions. It is easy to create a function using a user-defined function, just return the function name. This function will preserve the environment in which it was defined. </li>
 <li>Looking up functions are the same as looking up for variable values. When R looks up a name where it is obvious you want a function, R will ignore non-function objects.</li>
 <li>Every time a function is called, a new environment is created to host execution. Each invocation of one function is completely independent. </li>
-<li>Lexical scoping determines where to look up variable values. When the function is run, R looks for values, not when it&#39;s created.</li>
+<li>Lexical scoping determines where to look up variable values. When the function is run, R looks for values, not when it&#39;s created (dynamic lookup).</li>
 <li><strong>You want to make a function self-contained, so that its output only depends on its arguments</strong>. You can use <code>findGlobals()</code> function from package <code>codetools</code>, which lists all the external dependencies of a function.</li>
 </ol>
 
@@ -417,7 +414,7 @@ result = tryCatch({
 <li><strong>User-defined infix functions should start and end with <code>%</code></strong>. Their names can contain any special characters (special characters should be escaped). </li>
 <li>Replacement functions act like they modify their arguments in place (actually they still make a local temporary copy), and have the special name &ldquo;xxx&lt;-&rdquo;. <code>&quot;second&lt;-&quot; &lt;- function(x,value) { x[2] &lt;- value; x}</code>. Use <code>second(x) &lt;- 5L</code>.</li>
 <li>Most R objects have copy-on-modify semantics. So modifying a function argument does not change the original value. <strong>There are two important excepting to copy-on-modify semantics: reference classes and environment. These can be modified in place, so extra care is needed when working with them</strong>.</li>
-<li>pure function: functions that always map the smae input ot hte same output and have no other impact on the workspace.</li>
+<li>pure function: functions that always map the same input to the same output and have no other impact on the workspace.</li>
 <li>Most base R function are pure functions. Here are some exceptions:
 
 <ul>
@@ -470,6 +467,77 @@ result = tryCatch({
 <li>Call method use <code>myAccount$deposit(100)</code></li>
 <li>use <code>is(x,&quot;refClass&quot;)</code> to check whether an object is RC or not.</li>
 </ul></li>
+<li>(From <a href="https://google-styleguide.googlecode.com/svn/trunk/Rguide.xml">Google&#39;s R Style Guide</a>) Comparing S3 and S4 OO fields, S3 is more interactive and flexible, whereas S4 is more formal and rigorous. Use S3 system unless there is a strong reason to use S4. Two primary justification for S3 is
+
+<ul>
+<li>to directly use rigorously defined class and objects in C++ code</li>
+<li>S4 generic method can dispatch on multiple arguments.</li>
+</ul></li>
+</ol>
+
+<h3><a href="http://r-pkgs.had.co.nz/style.html">Style</a></h3>
+
+<ol>
+<li>Here I describe the style that I feel comfortable with, combining <a href="https://google-styleguide.googlecode.com/svn/trunk/Rguide.xml">Google&#39;s R Style Guide</a> and Hadley&#39;s Style.</li>
+<li>File names should follow the camelCase and end in &ldquo;.R&rdquo;.</li>
+<li>Variable names should be nouns and follow the camelCase, while function names should be verbs and follow the PascalCase.</li>
+<li>Don&#39;t use dot in names. Use underscore only if dates appear in file names.</li>
+<li>Place spaces around all infix operators.</li>
+<li>Line maximum is 80 characters.</li>
+<li>Idention, of course.</li>
+<li>Curly braces: first one should be at the end of line and 2nd one shoul be at the beginning of a line. An exception is <code>} else {</code></li>
+<li>Code organization (from Google&#39;s R Style Guide):
+
+<ul>
+<li>Copyright statement comment</li>
+<li>Author comment</li>
+<li>File description comment: purpose, input and output</li>
+<li><code>source()</code> and <code>library()</code> statements</li>
+<li>Function definitions</li>
+<li>Executed s tatements, if applicable</li>
+<li>Use <code>#-----------------------</code> to break up your file into chunks</li>
+</ul></li>
+<li>Function documentation should be right above the function definition.
+
+<ul>
+<li>include at least purpose, args description, input, and output</li>
+</ul></li>
+</ol>
+
+<h3><a href="http://adv-r.had.co.nz/Environments.html">Environments</a></h3>
+
+<h4>Environments Basics</h4>
+
+<ol>
+<li>The environment is a data structure that powers scoping. Environments have reference semantics.</li>
+<li>Create new environments: 
+<code>r
+e &lt;- new.env()
+e$a &lt;- FALSE
+e$b &lt;- &quot;a&quot;
+</code></li>
+<li>Every environment has a parent; and the root environment is the enmpty environment. Common environments include: <code>globalenv()</code> is the interactive workspace. The parent of this environment is the last library you loaded; <code>baseenv()</code> is the environment for base package; <code>emptyenv()</code> is the root environment; and <code>environment()</code> is the current environment. </li>
+<li><code>search()</code> list all parents of the global environment. Access a specific environment with <code>as.environment(&quot;package:stats&quot;)</code>; list the bindings in the environment&#39;s frame with <code>ls(e)</code></li>
+<li><code>ls.str(e)</code> can list the structures of all the bindings in an environment</li>
+<li><code>exists(&quot;x&quot;,envir=e)</code> to determine if a binding exists in <code>e</code> or its parents, use arg <code>inherits = FALSE</code> to look in <code>e</code> only.</li>
+</ol>
+
+<h4>Function Environments</h4>
+
+<ol>
+<li>Function Environments include 4:</li>
+<li>Enclosing environment, where a function is created/defined. Note enclosing environment is used by lexical scoping.</li>
+<li>Binding environment, where a function is bound to a name. Note a function&#39;s enclosing and binding environment may be different. </li>
+<li>Calling environment, where a function is called. Use <code>parent.frame()</code> to get a function&#39;s calling environment.</li>
+<li>Execution environment, which stores variables created during execution. </li>
+<li>Every package has two environments associated with it: the package environment and the namespace environment. Every exported function in a package is bound into the package environment but enclosed by the namespace environment. </li>
+<li>Looking up variables in the calling environment rather than in the enclosing environment is called dynamic scoping.</li>
+</ol>
+
+<h4>Binding names to values</h4>
+
+<ol>
+<li>surrounding unusual names with backticks <code>:)</code> &lt;- &ldquo;smile&rdquo;</li>
 </ol>
 
 </body>

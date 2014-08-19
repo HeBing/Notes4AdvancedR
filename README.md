@@ -164,6 +164,7 @@ if(class(test) == "try-error") {
 3. Use `ls("package:base", all = TRUE)` to list all objects in the base package.
 
 #### Lexical scoping
+0. Lexical scoping looks up symbol values based on how function were nested when they were created (i.e., their enclosing environments), but not how they were nested when they were called (calling environments). So with lexical scoping, we do not need to know how the function is called but only where the function is defined. 
 1. Four principles of lexical scoping in R
     * Name masking
     * Functions v.s. variables
@@ -174,7 +175,7 @@ if(class(test) == "try-error") {
 4. closures: functions created by other functions. It is easy to create a function using a user-defined function, just return the function name. This function will preserve the environment in which it was defined. 
 5. Looking up functions are the same as looking up for variable values. When R looks up a name where it is obvious you want a function, R will ignore non-function objects.
 6. Every time a function is called, a new environment is created to host execution. Each invocation of one function is completely independent. 
-7. Lexical scoping determines where to look up variable values. When the function is run, R looks for values, not when it's created.
+7. Lexical scoping determines where to look up variable values. When the function is run, R looks for values, not when it's created (dynamic lookup).
 8. __You want to make a function self-contained, so that its output only depends on its arguments__. You can use `findGlobals()` function from package `codetools`, which lists all the external dependencies of a function.
 
 #### Every operation is a function call
@@ -234,3 +235,64 @@ if(class(test) == "try-error") {
   * Use `setRefClass()` to define a class: `Account <- setRefClass("Account",fields=list(balance="numeric"), methods=list(withdraw=function(x){balance <<- balance -x}))`
   * Call method use `myAccount$deposit(100)`
   * use `is(x,"refClass")` to check whether an object is RC or not.
+5. (From [Google's R Style Guide](https://google-styleguide.googlecode.com/svn/trunk/Rguide.xml)) Comparing S3 and S4 OO fields, S3 is more interactive and flexible, whereas S4 is more formal and rigorous. Use S3 system unless there is a strong reason to use S4. Two primary justification for S3 is
+  * to directly use rigorously defined class and objects in C++ code
+  * S4 generic method can dispatch on multiple arguments.
+
+### [Style](http://r-pkgs.had.co.nz/style.html)
+0. Here I describe the style that I feel comfortable with, combining [Google's R Style Guide](https://google-styleguide.googlecode.com/svn/trunk/Rguide.xml) and Hadley's Style.
+1. File names should follow the camelCase and end in ".R".
+2. Variable names should be nouns and follow the camelCase, while function names should be verbs and follow the PascalCase.
+3. Don't use dot in names. Use underscore only if dates appear in file names.
+4. Place spaces around all infix operators.
+5. Line maximum is 80 characters.
+6. Idention, of course.
+7. Curly braces: first one should be at the end of line and 2nd one shoul be at the beginning of a line. An exception is `} else {`
+8. Code organization (from Google's R Style Guide):
+  * Copyright statement comment
+  * Author comment
+  * File description comment: purpose, input and output
+  * `source()` and `library()` statements
+  * Function definitions
+  * Executed s tatements, if applicable
+  * Use `#-----------------------` to break up your file into chunks
+9. Function documentation should be right above the function definition.
+  * include at least purpose, args description, input, and output
+
+### [Environments](http://adv-r.had.co.nz/Environments.html)
+#### Environments Basics
+0. The environment is a data structure that powers scoping. Environments have reference semantics.
+1. Create new environments: 
+```r
+e <- new.env()
+e$a <- FALSE
+e$b <- "a"
+```
+2. Every environment has a parent; and the root environment is the enmpty environment. Common environments include: `globalenv()` is the interactive workspace. The parent of this environment is the last library you loaded; `baseenv()` is the environment for base package; `emptyenv()` is the root environment; and `environment()` is the current environment. 
+3. `search()` list all parents of the global environment. Access a specific environment with `as.environment("package:stats")`; list the bindings in the environment's frame with `ls(e)`
+4. `ls.str(e)` can list the structures of all the bindings in an environment
+5. `exists("x",envir=e)` to determine if a binding exists in `e` or its parents, use arg `inherits = FALSE` to look in `e` only.
+
+#### Function Environments
+
+6. Function Environments include 4:
+* Enclosing environment, where a function is created/defined. Note enclosing environment is used by lexical scoping.
+* Binding environment, where a function is bound to a name. Note a function's enclosing and binding environment may be different. 
+* Calling environment, where a function is called. Use `parent.frame()` to get a function's calling environment.
+* Execution environment, which stores variables created during execution. 
+7. Every package has two environments associated with it: the package environment and the namespace environment. Every exported function in a package is bound into the package environment but enclosed by the namespace environment. 
+8. Looking up variables in the calling environment rather than in the enclosing environment is called dynamic scoping.
+
+#### Binding names to values
+9. surrounding unusual names with backticks.
+10. Two special types of binding: delayed (`delayedAssign()`) and active binding (`activeAssign()`)
+  * delayed: creates and stores a promise (i.e., expression) to evaluate the expression when needed
+  * active: reevaluated every time they are accessed
+
+#### Explicit environments
+11. Take advantage of the reference semantics of environment data structure:
+  * avoiding copies of large data (modify-in-place)
+  * managing state within a package
+  * efficiently look up values from names, like a hashtable access with `O(1)` (see package `hash`)
+12. Note: if environment is used for this sake, always set the parent environment ot the empty environment to avoid bindings inherited from other environments: `my_env ,- new.env(parent = emptyenv())`.
+

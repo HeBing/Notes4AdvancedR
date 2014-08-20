@@ -138,6 +138,8 @@ if(class(test) == "try-error") {
   browser()
 }
 ```
+
+#### files
 67. `dput` write an R object (e.g., like a functioin) to ASCII file.
 68. `format` an R object for pretty printing. Options `trim = FALSE, digits = NULL, nsmall = 0L, justify = c("left", "right", "centre", "none")`: trim spaces, digits, number of decimals, alignment (justify).
 69. `sink` `capture.output` evaluate expression and write the output to a file
@@ -154,8 +156,9 @@ if(class(test) == "try-error") {
 80. `file.choose()` will promot a file selection GUI window
 81. `file.copy, file.create, file.remove, file.rename, dir.create`
 82. `file.exists, file.info`
-83. `tempdir, tempfile` returns a path and name appropriate for temporary directory and file.
-84. `download.file(url,destfile)` download a file from Internet to the destination file `destfile`
+83. `basename` gives the file name without paths. 
+84. `tempdir, tempfile` returns a path and name appropriate for temporary directory and file.
+85. `download.file(url,destfile)` download a file from Internet to the destination file `destfile`
 
 ### [Functions](http://adv-r.had.co.nz/Functions.html)
 #### Function Basics

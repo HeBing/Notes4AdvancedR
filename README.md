@@ -322,4 +322,65 @@ e$b <- "a"
 9. Some errors are expected and you want to handle them automatically. In R, there following three tools for handling conditions: 
   * `try()`: the error message will be printed but execution will continue. If no error, returns the evaluated value; if there is error, it return an (invisible) object of class `try-error`. You can use `is.error <- function(x) inherits(x,"try-error")` to test the try-error class.
   * `tryCatch()` let you specify different actions(i.e., functions or handlers) for warnings, errors, messages, and interrupts. 
-  * `withCallingHandlers()`
+  * `withCallingHandlers()` is a variant of `tryCatch()`
+10. Examples using `try()`:
+```r
+# example 1: checks the class of returned object of try() includes try-error
+is.error <- function(x) inherits(x,"try-error")
+succeeded <- !sapply(results, is.error)
+
+# example 2: another useful idiom is using a default value if an experssion fails
+default <- NULL
+try(default <- read.csv(myfile), silent = TRUE)
+```
+11. Examples using `tryCatch()`:
+```r
+tryCatch(mycode, 
+  error = function(c) "error",
+  warning = function(c) "warning",
+  message = function(c) "message",
+  interrupt = function(c) "Try again!")
+```
+
+#### Custom signal classes
+12. `try()` and `tryCatch()` only handle conditions include `error`, `warning`, `message` and `interupt`. Since conditions are S3 classes, so you can define your own classes if you want to distinguish different types of error. But we can write a constructor function for conditions. Conditions must contain `message` and `call` compoents. When creating a new condition, it should always inherit from `condition`.
+```r
+condition <- function(subclass, message, call = sys.call(-1), ...) {
+  structure(
+    class = c(subclass, "condition"),
+    list(message = message, call = call),
+    ...)
+} # Note structure returns the given object with further attributes set
+```
+
+#### Defensive programming
+13. A key principle of defensive programming is to "fail fast":
+  * Be strict about what you accept. use `stopifnot()` or `assertthat` package
+  * Avoid functions that use non-standard evaluation: `subset`, `with`.
+  * Avoid functions that return different types of output depending on their input. For example, use `vapply()` instead of `sapply()`; and always use `drop = FALSE` when subsetting a dataframe.
+
+### [Functional programming](adv-r.had.co.nz/Functional-programming.html)
+#### Overview
+1. To prevent bugs and to make more flexible code, adopt the "do not repeat yoursefl" or DRY principle. This is the main thing I like about this book; you can learn about not R but also general and practical programming techniques.
+2. Functions in R are first-class functions. You can do anything with functions that you can do with vectors. You can assign functions to variables, store them in lists, pass them as arguments to other functions (known as functionals), create them inside functions, and returen them as the result of a function (known as closures).
+3. An example: 
+```r
+# summary function
+summary <- function(x) {
+  # assign functions to a list
+  funs <- c(mean, median, sd, mad, IQR)
+  # pass the list of funs to another fun lapply
+  lapply(funs, function(f) f(x, na.rm = TRUE))
+}
+# system.time example
+lapply(funList, function(f) system.time(f(x)))
+```
+
+#### Anonymous functions and closures
+1. An naive example: `(function (x) 3)()`
+2. One use of anonymous functions is to create closures (i.e., functions returned by other function)
+3. Closures get their name because they enclose the execution environment of the parent function and can access all its variables.
+4. In R, almost every function is a closure. All functions remember the environment in which they were created, typically either the global environment or a package environment. (Remember lexical scoping: lexical scoping looks up symbol values based on how functions were nested when they were created not when they were called.)
+5. Closures are useful for function factories and mutable state:
+  * function factories return functions.
+  * use `<<-` to change values in parent function. 

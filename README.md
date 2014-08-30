@@ -86,6 +86,8 @@ by Bing He
 34. `next/break`
 35. `switch(EXPR, alternatives)` if `EXPR` is character/string, alternatives are named and matched by names; if `EXPR` is integer, alternatives can be without names and are matched by order of occurence. `switch` can be used within function.
 36. `ISOdate, ISOdatetime, strptime("Tue, 23 Mar 2010 14:36:38 -0400",  "%a, %d %b %Y %H:%M:%S %z")` convert string to date or backwards. `difftime` creates time intervals,`julian,months,quarters,weekdays` extracts julian time, month, quarter, and weekday of a date. __Julian time is number of days since origin__.
+37. Use `unlist` to convert the output from a list to a vector.
+38. Use `stopifnot()` to assert the input types of functions.
 
 #### String
 37. `agrep(pattern,x)` approximate string match which finds matches of `x`'s element to `pattern` using edit distance.
@@ -384,3 +386,25 @@ lapply(funList, function(f) system.time(f(x)))
 5. Closures are useful for function factories and mutable state:
   * function factories return functions.
   * use `<<-` to change values in parent function. 
+
+### [Functionals](adv-r.had.co.nz/Functionals.html)
+0. A nice programming principle: It is a mistake to focus on speed until you know it will be a problem. Once you have clear, correct code you can make it fast.
+1. A higher-order function is a function that takes a function as an input or returns a function as output. We've already seen one type of higher order function: closures, functions returned by other functions. The complement to a closure is a functional, a function that takes a function as an input and returns a vector as output. 
+2. Functionals are useful to replace for for-loops; functions are also useful for encapsulating common data manipulation tasks like split-apply-combine and for working with mathematical functions.
+3. Various `apply` functions:
+  * `apply`: apply func to specified dimension of matrix/array
+  * `lapply`: pass each element of a list to a func, return a list of results
+  * `sapply`, `vapply`: variants of lapply, `sapply` returns a simplified results; `vapply` returns a vector.
+  * `mapply`,`Map`: iterate over multiple input data structures in parallel.
+  * `tapply` summerize a vector by groups defined by another vector, which uses `split` and `sapply`.
+  * `parallel::mclapply` and `parallel::mcMap()`, parallel versions of `lapply` and `Map()`
+  * `sweep`: `x <- sweep(x,1,apply(x,1,mean),'-')`, demean data.
+  * `outer`: `outer(1:3, 1:10, "*")`
+4. The `plyr` package provides a set of apply-like functions with specific input type and output type: `llply,ldply,laply,dlply,ddply,daply,alply,adply,aaply`.
+5. Every functional programming language has three tools for this: `Map, Reduce, Filter`.
+  * `Map`: iterately apply function to multiple input data structures in parallel.
+  * `Reduce`: extending  two-argumetn functions recursively. Remember the example `Reduce(intersect, l)`: find the numbers appearing in all elements of the list
+  * `Filter`: functionals that work with predicates (functions that return a single TRUE or FALSE).
+
+
+  * `Filter`: 

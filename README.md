@@ -405,6 +405,3 @@ lapply(funList, function(f) system.time(f(x)))
   * `Map`: iterately apply function to multiple input data structures in parallel.
   * `Reduce`: extending  two-argumetn functions recursively. Remember the example `Reduce(intersect, l)`: find the numbers appearing in all elements of the list
   * `Filter`: functionals that work with predicates (functions that return a single TRUE or FALSE).
-
-
-  * `Filter`: 
